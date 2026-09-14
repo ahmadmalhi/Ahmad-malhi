@@ -14,6 +14,8 @@ export function useProfile() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LOCAL_PROFILE_KEY);
+      // Hydration is the synchronization point for browser-only storage.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setLocalProfile(JSON.parse(raw));
     } catch {
       /* ignore corrupt storage */

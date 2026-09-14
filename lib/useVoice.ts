@@ -12,13 +12,18 @@ export function useSpeechToText(onResult: (text: string) => void) {
   const [supported, setSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
   const onResultRef = useRef(onResult);
-  onResultRef.current = onResult;
+
+  useEffect(() => {
+    onResultRef.current = onResult;
+  }, [onResult]);
 
   useEffect(() => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
+    // Browser capability detection can only run after the client mounts.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupported(true);
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
