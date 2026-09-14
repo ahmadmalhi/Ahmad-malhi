@@ -71,6 +71,8 @@ export default function ChatApp({ name, onSignOut }: { name: string; onSignOut: 
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const saved: Conversation[] = raw ? JSON.parse(raw) : [];
+      // Hydration is the synchronization point for browser-only storage.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConversations(saved);
     } catch {
       setConversations([]);
@@ -78,7 +80,6 @@ export default function ChatApp({ name, onSignOut }: { name: string; onSignOut: 
     const fresh = newConversation();
     setActiveId(fresh.id);
     setConversations((prev) => [fresh, ...prev]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -92,8 +93,8 @@ export default function ChatApp({ name, onSignOut }: { name: string; onSignOut: 
 
   const active = conversations.find((c) => c.id === activeId) || null;
 
-  function updateActive(updater: (c: Conversation) => Conversation) {
-    setConversations((prev) => prev.map((c) => (c.id === activeId ? updater(c) : c)));
+  function updateConversation(id: string, updater: (c: Conversation) => Conversation) {
+    setConversations((prev) => prev.map((c) => (c.id === id ? updater(c) : c)));
   }
 
   function handleNewChat() {
@@ -108,11 +109,14 @@ export default function ChatApp({ name, onSignOut }: { name: string; onSignOut: 
     const text = input.trim();
     if (!text || !active || sending) return;
     setErrorNotice("");
+    const conversationId = active.id;
 
+    // Event handlers intentionally capture the time the user sends a message.
+    // eslint-disable-next-line react-hooks/purity
     const userMsg: ChatMessage = { id: uid(), role: "user", content: text, createdAt: Date.now() };
     const isFirstMessage = active.messages.length === 0;
 
-    updateActive((c) => ({
+    updateConversation(conversationId, (c) => ({
       ...c,
       title: isFirstMessage ? titleFrom(text) : c.title,
       messages: [...c.messages, userMsg],
@@ -138,9 +142,10 @@ export default function ChatApp({ name, onSignOut }: { name: string; onSignOut: 
         id: uid(),
         role: "assistant",
         content: data.reply || "…",
+        // eslint-disable-next-line react-hooks/purity
         createdAt: Date.now(),
       };
-      updateActive((c) => ({ ...c, messages: [...c.messages, assistantMsg] }));
+      updateConversation(conversationId, (c) => ({ ...c, messages: [...c.messages, assistantMsg] }));
     } catch (err: any) {
       setErrorNotice(
         err.message === "Failed to fetch"
