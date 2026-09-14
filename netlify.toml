@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Do not put API secrets in this file. Add them in:
+# Netlify → Project configuration → Environment variables.
+# Next.js Route Handlers under app/api/* are automatically deployed
+# by Netlify's OpenNext adapter as server-side functions.

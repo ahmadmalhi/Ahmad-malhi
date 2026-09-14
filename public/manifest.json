@@ -1,0 +1,10 @@
+{
+  "name": "Nexora AI",
+  "short_name": "Nexora",
+  "description": "Your private AI workspace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e0f1a",
+  "theme_color": "#0e0f1a",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
